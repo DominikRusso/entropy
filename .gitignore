@@ -29,6 +29,7 @@
 *.dylib
 
 # Executables
+entropy
 *.exe
 *.out
 *.app
