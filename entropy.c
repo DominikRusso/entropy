@@ -14,16 +14,37 @@ char *prog_name;
 int main(int argc, char *argv[]) {
 
     prog_name = argv[0];
+    
+    int opt;
+    int sflag = 0;
+    int kflag = 0;
+    while ((opt = getopt(argc, argv, "sk")) != -1) {
+        switch (opt) {
+            case 's':
+                sflag = 1;
+                break;
+            case 'k':
+                kflag = 1;
+                break;
+            case '?':
+            default:
+                usage();
+                return EXIT_FAILURE;
+        }
+    }
+    argc -= optind;
+    argv += optind;
 
-    if (argc != 2) {
+    if (argc != 1) {
         usage();
-        return 1;
+        return EXIT_FAILURE;
     }
 
-    FILE *f = fopen(argv[1], "rb");
+    FILE *f = fopen(argv[0], "rb");
     if (f == NULL) {
         fprintf(stderr, "%s: %s", prog_name, strerror(errno));
-        return 1;
+        fprintf(stderr, "\n");
+        return EXIT_FAILURE;
     }
 
     int bytes[256] = {0};
@@ -49,13 +70,20 @@ int main(int argc, char *argv[]) {
             entropy -= probability * log2(probability);
         }
     }
-
-    printf("Shannon Entropy: %f\n", entropy);
-    printf("Kolmogorov Entropy: %f\n", entropy / len);
+    
+    if (sflag) {
+        printf("%f\n", entropy);
+    }
+    if (kflag) {
+        printf("%f\n", entropy/len);
+    }
+    if (!sflag && !kflag) {
+        printf("Shannon Entropy: %f\n", entropy);
+        printf("Kolmogorov Entropy: %f\n", entropy/len);
+    }
 
 }
 
-
 void usage(void) {
-    fprintf(stderr, "%s: usage: %s input_file\n", prog_name, prog_name);
+    fprintf(stderr, "%s: usage: %s [-sk] input_file\n", prog_name, prog_name);
 }
