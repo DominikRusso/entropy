@@ -8,13 +8,13 @@
 
 static void usage(void);
 
-char *prog_name;
+static char *prog_name;
 
 
 int main(int argc, char *argv[]) {
 
     prog_name = argv[0];
-    
+
     int opt;
     int sflag = 0;
     int kflag = 0;
@@ -35,15 +35,18 @@ int main(int argc, char *argv[]) {
     argc -= optind;
     argv += optind;
 
-    if (argc != 1) {
+    FILE *f;
+    if (argc == 0) {
+        f = stdin;
+    } else if (argc == 1) {
+        f = fopen(argv[0], "rb");
+        if (f == NULL) {
+            fprintf(stderr, "%s: %s", prog_name, strerror(errno));
+            fprintf(stderr, "\n");
+            return EXIT_FAILURE;
+        }
+    } else {
         usage();
-        return EXIT_FAILURE;
-    }
-
-    FILE *f = fopen(argv[0], "rb");
-    if (f == NULL) {
-        fprintf(stderr, "%s: %s", prog_name, strerror(errno));
-        fprintf(stderr, "\n");
         return EXIT_FAILURE;
     }
 
@@ -70,7 +73,7 @@ int main(int argc, char *argv[]) {
             entropy -= probability * log2(probability);
         }
     }
-    
+
     if (sflag) {
         printf("%f\n", entropy);
     }
