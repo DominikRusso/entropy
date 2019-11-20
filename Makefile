@@ -1,19 +1,20 @@
-CC = gcc
-DEFS = -D_DEFAULT_SOURCE
-CFLAGS = -std=c99 -pedantic -Wall $(DEFS) -O3
+CC := gcc
+DEFS := -D_DEFAULT_SOURCE
+CFLAGS := -std=c99 -pedantic -Wall $(DEFS) -O3
 
-OBJECTS = entropy.o
+EXEC = entropy-calc
+OBJECTS = entropy-calc.o
 
 
-.PHONY: all clean
+.PHONY: all
+all: $(EXEC)
 
-all: entropy
-
-entropy: $(OBJECTS)
+$(EXEC): $(OBJECTS)
 	$(CC) -o $@ $^
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+.PHONY: clean
 clean:
-	rm -rf *.o *.dSYM entropy
+	rm -rf $(OBJECTS) $(EXEC)
