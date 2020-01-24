@@ -5,10 +5,11 @@
 #include <string.h>
 #include <unistd.h>
 
-static void usage(char *prog_name);
+static void usage(void);
 
-int main(int argc, char *argv[]) {
-
+int
+main(int argc, char *argv[])
+{
     char *prog_name = argv[0];
 
     int opt;
@@ -16,16 +17,16 @@ int main(int argc, char *argv[]) {
     int kflag = 0;
     while ((opt = getopt(argc, argv, "sk")) != -1) {
         switch (opt) {
-            case 's':
-                sflag = 1;
-                break;
-            case 'k':
-                kflag = 1;
-                break;
-            case '?':
-            default:
-                usage(prog_name);
-                return EXIT_FAILURE;
+        case 's':
+            sflag = 1;
+            break;
+        case 'k':
+            kflag = 1;
+            break;
+        case '?':
+        default:
+            usage();
+            return EXIT_FAILURE;
         }
     }
 
@@ -40,7 +41,7 @@ int main(int argc, char *argv[]) {
             return EXIT_FAILURE;
         }
     } else {
-        usage(prog_name);
+        usage();
         return EXIT_FAILURE;
     }
 
@@ -80,7 +81,9 @@ int main(int argc, char *argv[]) {
     }
 }
 
-void usage(char *prog_name) {
-    fprintf(stderr, "%s: usage: entropy [-sk] input_file\n", prog_name);
+static void
+usage(void)
+{
+    fprintf(stderr, "usage: entropy [-sk] input_file\n");
 }
 
