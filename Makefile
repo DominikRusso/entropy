@@ -1,6 +1,6 @@
 CC := gcc
 DEFS := -D_DEFAULT_SOURCE
-CFLAGS := -std=c99 -pedantic -Wall -Wextra $(DEFS) -O3
+FLAGS := -std=c99 -pedantic -Wall -Wextra $(DEFS) -O3
 
 EXEC = entropy
 OBJECTS = entropy.o
@@ -10,10 +10,10 @@ OBJECTS = entropy.o
 all: $(EXEC)
 
 $(EXEC): $(OBJECTS)
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ -lm
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(FLAGS) -c -o $@ $<
 
 .PHONY: clean
 clean:
