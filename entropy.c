@@ -46,11 +46,11 @@ int main(int argc, char *argv[]) {
 
     int bytes[256] = {0};
     unsigned char buffer[BUFSIZ];
-    int len = 0;
-    int read_count = 0;
+    unsigned int len = 0;
+    unsigned long read_count = 0;
 
     while ((read_count = fread(buffer, 1, BUFSIZ, fp)) > 0) {
-        for (int i = 0; i < read_count; i++) {
+        for (unsigned int i = 0; i < read_count; i++) {
             bytes[buffer[i]]++;
             len++;
         }
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
     double entropy = 0;
 
     for (int i = 0; i < 256; i++) {
-        probability = bytes[i] / (float)len;
+        probability = bytes[i] / (double)len;
         if (probability > 0) {
             entropy -= probability * log2(probability);
         }
