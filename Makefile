@@ -1,9 +1,9 @@
 CC := gcc
 DEFS := -D_DEFAULT_SOURCE
-CFLAGS := -std=c99 -pedantic -Wall $(DEFS) -O3
+CFLAGS := -std=c99 -pedantic -Wall -Wextra $(DEFS) -O3
 
-EXEC = entropy-calc
-OBJECTS = entropy-calc.o
+EXEC = entropy
+OBJECTS = entropy.o
 
 
 .PHONY: all

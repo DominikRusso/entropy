@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
                 return EXIT_FAILURE;
         }
     }
-    
+
     FILE *fp;
     if (argc == optind) {
         fp = stdin;
@@ -81,6 +81,6 @@ int main(int argc, char *argv[]) {
 }
 
 void usage(char *prog_name) {
-    fprintf(stderr, "%s: usage: entropy-calc [-sk] input_file\n", prog_name);
+    fprintf(stderr, "%s: usage: entropy [-sk] input_file\n", prog_name);
 }
 
