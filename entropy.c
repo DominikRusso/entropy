@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 
+static double calc_kolmogorov(double entropy, unsigned int len);
 static void usage(void);
 
 int
@@ -17,13 +18,16 @@ main(int argc, char *argv[])
     int kflag = 0;
     while ((opt = getopt(argc, argv, "sk")) != -1) {
         switch (opt) {
+        case 'h':
+            usage();
+            return EXIT_SUCCESS;
         case 's':
             sflag = 1;
             break;
         case 'k':
             kflag = 1;
             break;
-        case '?':
+        case '?':   /* FALLTHROUGH */
         default:
             usage();
             return EXIT_FAILURE;
@@ -73,17 +77,27 @@ main(int argc, char *argv[])
         printf("%f\n", entropy);
     }
     if (kflag) {
-        printf("%f\n", entropy/len);
+        printf("%f\n", calc_kolmogorov(entropy, len));
     }
     if (!sflag && !kflag) {
         printf("Shannon Entropy: %f\n", entropy);
-        printf("Kolmogorov Entropy: %f\n", entropy/len);
+        printf("Kolmogorov Entropy: %f\n", calc_kolmogorov(entropy, len));
+    }
+}
+
+static double
+calc_kolmogorov(double entropy, unsigned int len)
+{
+    if (entropy == 0) {
+        return 0;
+    } else {
+        return entropy/len;
     }
 }
 
 static void
 usage(void)
 {
-    fprintf(stderr, "usage: entropy [-sk] input_file\n");
+    fprintf(stderr, "usage: entropy [-hsk] [file]\n");
 }
 
