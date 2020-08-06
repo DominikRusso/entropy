@@ -5,99 +5,118 @@
 #include <string.h>
 #include <unistd.h>
 
-static double calc_kolmogorov(double entropy, unsigned int len);
+typedef struct Options {
+	int	kflag;
+	int	pflag;
+	int	sflag;
+} Options;
+
+static double kolmogorov(double entropy, unsigned int len);
+static void entropy(FILE *inf, struct Options options);
 static void usage(void);
 
 int
 main(int argc, char *argv[])
 {
-    char *prog_name = argv[0];
+	char *prog_name = argv[0];
 
-    int opt;
-    int sflag = 0;
-    int kflag = 0;
-    while ((opt = getopt(argc, argv, "sk")) != -1) {
-        switch (opt) {
-        case 'h':
-            usage();
-            return EXIT_SUCCESS;
-        case 's':
-            sflag = 1;
-            break;
-        case 'k':
-            kflag = 1;
-            break;
-        case '?':   /* FALLTHROUGH */
-        default:
-            usage();
-            return EXIT_FAILURE;
-        }
-    }
+	struct Options options = {0};
 
-    FILE *fp;
-    if (argc == optind) {
-        fp = stdin;
-    } else if (argc == optind + 1) {
-        fp = fopen(argv[optind], "rb");
-        if (fp == NULL) {
-            fprintf(stderr, "%s: %s", prog_name, strerror(errno));
-            fprintf(stderr, "\n");
-            return EXIT_FAILURE;
-        }
-    } else {
-        usage();
-        return EXIT_FAILURE;
-    }
+	int opt;
+	while ((opt = getopt(argc, argv, "hkps")) != -1) {
+		switch (opt) {
+		case 'h':
+			usage();
+			return EXIT_SUCCESS;
+		case 'k':
+			options.kflag = 1;
+			break;
+		case 'p':
+			options.pflag = 1;
+			break;
+		case 's':
+			options.sflag = 1;
+			break;
+		case '?':   /* FALLTHROUGH */
+		default:
+			usage();
+			return EXIT_FAILURE;
+		}
+	}
 
-    int bytes[256] = {0};
-    unsigned char buffer[BUFSIZ];
-    unsigned int len = 0;
-    unsigned long read_count = 0;
+	if (argc > optind) {
+		for (int i = optind; i < argc; i++) {
+			FILE *inf = fopen(argv[i], "rb");
+			if (inf == NULL) {
+				perror(prog_name);
+				exit(EXIT_FAILURE);
+			}
+			if (options.pflag) {
+				printf("%s\n", argv[i]);
+			}
+			entropy(inf, options);
+			fclose(inf);
+		}
+	} else {
+		entropy(stdin, options);
+	}
+	exit(EXIT_SUCCESS);
+}
 
-    while ((read_count = fread(buffer, 1, BUFSIZ, fp)) > 0) {
-        for (unsigned int i = 0; i < read_count; i++) {
-            bytes[buffer[i]]++;
-            len++;
-        }
-    }
+static void
+entropy(FILE *inf, struct Options options)
+{
+	int bytes[256] = {0};
+	unsigned char buffer[BUFSIZ];
+	unsigned int len = 0;
+	unsigned long read_count = 0;
 
-    fclose(fp);
+	while ((read_count = fread(buffer, 1, BUFSIZ, inf)) > 0) {
+		for (unsigned int i = 0; i < read_count; i++) {
+			bytes[buffer[i]]++;
+			len++;
+		}
+	}
 
-    double probability = 0;
-    double entropy = 0;
+	double prob = 0;
+	double ent = 0;
 
-    for (int i = 0; i < 256; i++) {
-        probability = bytes[i] / (double)len;
-        if (probability > 0) {
-            entropy -= probability * log2(probability);
-        }
-    }
+	if (len > 0) {
+		for (int i = 0; i < 256; i++) {
+			prob = bytes[i] / (double)len;
+			if (prob > 0) {
+				ent -= prob* log2(prob);
+			}
+		}
+	}
 
-    if (sflag) {
-        printf("%f\n", entropy);
-    }
-    if (kflag) {
-        printf("%f\n", calc_kolmogorov(entropy, len));
-    }
-    if (!sflag && !kflag) {
-        printf("Shannon Entropy: %f\n", entropy);
-        printf("Kolmogorov Entropy: %f\n", calc_kolmogorov(entropy, len));
-    }
+	if (options.sflag) {
+		printf("%f\n", ent);
+	}
+
+	if (options.kflag) {
+		printf("%f\n", kolmogorov(ent, len));
+	}
+
+	if (!options.sflag && !options.kflag) {
+		printf("Shannon Entropy: %f\n", ent);
+		printf("Kolmogorov Entropy: %f\n", kolmogorov(ent, len));
+	}
 }
 
 static double
-calc_kolmogorov(double entropy, unsigned int len)
+kolmogorov(double entropy, unsigned int len)
 {
-    if (entropy == 0) {
-        return 0;
-    } else {
-        return entropy/len;
-    }
+	if (len == 0) {
+		return 0;
+	} else {
+		return entropy/len;
+	}
 }
 
 static void
 usage(void)
 {
-    fprintf(stderr, "usage: entropy [-hsk] [file]\n");
+	fprintf(stderr, "usage: entropy [-ks] [file...]\n       entropy [-kps] file [file...]\n       entropy -h");
 }
 
