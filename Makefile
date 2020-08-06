@@ -1,20 +1,17 @@
-CC := gcc
-DEFS := -D_DEFAULT_SOURCE
-FLAGS := -std=c99 -pedantic -Wall -Wextra $(DEFS) -O3
+CC = gcc
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -O2 -march=native -pipe $(DEFS)
+DEFS = -D_DEFAULT_SOURCE
+LDFLAGS = -lm
 
-EXEC = entropy
-OBJECTS = entropy.o
-
+OUT = entropy
+OBJ = entropy.o
 
 .PHONY: all
-all: $(EXEC)
+all: $(OUT)
 
-$(EXEC): $(OBJECTS)
-	$(CC) -o $@ $^ -lm
-
-%.o: %.c
-	$(CC) $(FLAGS) -c -o $@ $<
+$(OUT): $(OBJ)
 
 .PHONY: clean
 clean:
-	rm -rf $(OBJECTS) $(EXEC)
+	rm -rf $(OBJ) $(OUT)
+
