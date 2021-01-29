@@ -6,21 +6,20 @@
 #include <unistd.h>
 
 typedef struct Options {
-	int	kflag;
-	int	pflag;
-	int	sflag;
+	char kflag;
+	char pflag;
+	char sflag;
 } Options;
 
 static double kolmogorov(double entropy, unsigned int len);
-static void entropy(FILE *inf, struct Options options);
+static void entropy(FILE *inf, Options options);
 static void usage(void);
 
 int
 main(int argc, char *argv[])
 {
 	char *prog_name = argv[0];
-
-	struct Options options = {0};
+	Options options = {0};
 
 	int opt;
 	while ((opt = getopt(argc, argv, "hkps")) != -1) {
@@ -63,8 +62,8 @@ main(int argc, char *argv[])
 	exit(EXIT_SUCCESS);
 }
 
-static void
-entropy(FILE *inf, struct Options options)
+void
+entropy(FILE *inf, Options options)
 {
 	int bytes[256] = {0};
 	unsigned char buffer[BUFSIZ];
@@ -104,7 +103,7 @@ entropy(FILE *inf, struct Options options)
 	}
 }
 
-static double
+double
 kolmogorov(double entropy, unsigned int len)
 {
 	if (len == 0) {
@@ -114,9 +113,9 @@ kolmogorov(double entropy, unsigned int len)
 	}
 }
 
-static void
+void
 usage(void)
 {
-	fprintf(stderr, "usage: entropy [-ks] [file...]\n       entropy [-kps] file [file...]\n       entropy -h");
+	fputs("usage: entropy [-ks] [file...]\n       entropy [-kps] file [file...]\n       entropy -h", stderr);
 }
 
